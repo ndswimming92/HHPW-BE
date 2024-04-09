@@ -20,7 +20,6 @@
 
   <ItemGroup>
     <Folder Include="API\" />
-    <Folder Include="Data\" />
     <Folder Include="DTO%27s\" />
   </ItemGroup>
 
