@@ -32,6 +32,7 @@ if (app.Environment.IsDevelopment())
 
 
 ItemsApi.Map(app);
+OrdersApi.Map(app);
 
 
 
