@@ -33,7 +33,7 @@ if (app.Environment.IsDevelopment())
 
 ItemsApi.Map(app);
 OrdersApi.Map(app);
-
+UsersApi.Map(app);
 
 
 app.UseHttpsRedirection();
