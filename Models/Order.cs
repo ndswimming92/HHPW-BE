@@ -12,10 +12,21 @@ namespace HHPW_BE.Models
         public string? Email { get; set; }
         public string? OrderType { get; set; }
         public string? PaymentType { get; set; }
-        public int? Total { get; set; }
-        public int? Tip { get; set; }
+        public decimal? Tip { get; set; }
         public DateTime? Date { get; set; }
-        public int? UserId { get; set; }
-        public ICollection<OrderItem> Items { get; set; } = new List<OrderItem>();
+        public decimal? Total {
+            get
+            {
+                return Subtotal + Tip;
+            }
+        }
+        public List<OrderItem>? Items { get; set; }
+        public decimal? Subtotal
+        {
+            get
+            {
+                return Items.Sum(item => item.Price);
+            }
+        }
     }
-}
+};

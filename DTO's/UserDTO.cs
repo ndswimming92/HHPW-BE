@@ -2,6 +2,6 @@
 {
     public class UserDTO
     {
-        public string Uid { get; set; }
+        public string? Uid { get; set; }
     }
 }

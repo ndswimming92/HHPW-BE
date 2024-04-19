@@ -1,6 +1,10 @@
-﻿using HHPW_BE.Models;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using HHPW_BE.Models;
+using System.Linq;
+using HHPW_BE.DTO_s;
+
 namespace HHPW_BE.API
+
 {
     public class OrdersApi
     {
@@ -101,6 +105,25 @@ namespace HHPW_BE.API
                 }
                 db.Orders.Remove(orderToDelete);
                 return Results.Ok(db.Orders);
+            });
+
+
+            app.MapGet("/orders/{id}/items", (HHPWDbContext db, int id) => {
+                var orderToGetItems = db.Orders
+                         .Where(o => o.Id == id)
+                         .Include(order => order.Items)
+                         .ThenInclude(orderItem => orderItem.Item)
+                         .Select(order => new
+                         {
+                             Items = order.Items.Select(oi => new ItemDTO
+                             {
+                                 Id = oi.Item.Id,
+                                 OrderItemId = oi.Id,
+                                 Name = oi.Item.Name,
+                                 Price = oi.Item.Price,
+                             })
+                         });
+                return Results.Ok(orderToGetItems);
             });
 
         }

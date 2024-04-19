@@ -7,8 +7,8 @@ namespace HHPW_BE.API
         public static void Map(WebApplication app)
         {
 
-            // CHeck if User is present
-            app.MapPost("/checkIfUser", (HHPWDbContext db, UserDTO userAuthDto) => {
+            // Check if User is present
+            app.MapPost("/checkuser", (HHPWDbContext db, UserDTO userAuthDto) => {
                 var userUid = db.Users.SingleOrDefault(user => user.Uid == userAuthDto.Uid);
 
                 if (userUid == null)
