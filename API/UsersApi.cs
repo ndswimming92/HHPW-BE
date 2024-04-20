@@ -1,6 +1,4 @@
-﻿using HHPW_BE.DTO_s;
-
-namespace HHPW_BE.API
+﻿namespace HHPW_BE.API
 {
     public class UsersApi
     {
@@ -8,8 +6,8 @@ namespace HHPW_BE.API
         {
 
             // Check if User is present
-            app.MapPost("/checkuser", (HHPWDbContext db, UserDTO userAuthDto) => {
-                var userUid = db.Users.SingleOrDefault(user => user.Uid == userAuthDto.Uid);
+            app.MapPost("/checkUserPresent", (HHPWDbContext db, string Uid) => {
+                var userUid = db.Users.SingleOrDefault(user => user.Uid == user.Uid);
 
                 if (userUid == null)
                 {

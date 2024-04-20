@@ -1,6 +1,7 @@
-﻿using HHPW_BE.DTO_s;
-using HHPW_BE.Models;
+﻿using HHPW_BE.Models;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq;
 
 namespace HHPW_BE.API
 {
@@ -8,50 +9,73 @@ namespace HHPW_BE.API
     {
         public static void Map(WebApplication app)
         {
+
+            // Get All Order Items
+            app.MapGet("/api/allOrderItems", (HHPWDbContext db) =>
+            {
+                return db.OrderItems.ToList();
+            });
+
+            // Get Single Order Item
+            app.MapGet("/api/singleOrderItem/{id}", (HHPWDbContext db, int id) =>
+            {
+                var orderItemID = db.OrderItems.FirstOrDefault(c => c.Id == id);
+
+                if (orderItemID == null)
+                {
+                    return Results.NotFound("Order Item Not Found.");
+                }
+
+                return Results.Ok(orderItemID);
+            });
+
+         
+
+            // Update Order Item
+            app.MapPut("/api/orderItems/{id}", (HHPWDbContext db, int id, OrderItem orderItem) =>
+            {
+                OrderItem orderItemToUpdate = db.OrderItems.SingleOrDefault(order => order.Id == id);
+
+                if (orderItemToUpdate == null)
+                {
+                    return Results.NotFound();
+                }
+
+                orderItemToUpdate.Amount = orderItem.Amount;
+
+                db.SaveChanges();
+                return Results.NoContent();
+            });
+
             // Add Items to Order
-            app.MapPost("/order/addItems", (HHPWDbContext db, OrderItemDTO addItemToOrderDTO) =>
+            app.MapPost("/api/orderItems", (HHPWDbContext db, OrderItem newOrderItem) =>
             {
-                Order order = db.Orders.FirstOrDefault(o => o.Id == addItemToOrderDTO.OrderId);
-                Item item = db.Items.FirstOrDefault(i => i.Id == addItemToOrderDTO.ItemId);
+                db.OrderItems.Add(newOrderItem);
+                db.SaveChanges();
+                return Results.Created($"/api/orderItems/{newOrderItem.Id}", newOrderItem);
+            });
 
-                if (order == null || item == null)
+            // Delete an Order Item
+            app.MapDelete("/api/deleteOrderItem/{id}", (HHPWDbContext db, int id) =>
+            {
+                OrderItem orderItemToDelete = db.OrderItems.SingleOrDefault(orderItemToDelete => orderItemToDelete.Id == id);
+                if (orderItemToDelete == null)
                 {
                     return Results.NotFound();
                 }
-
-                OrderItem orderItem = new()
-                {
-                    Item = item,
-                    Order = order,
-                };
-
-                db.OrderItems.Add(orderItem);
-
+                db.OrderItems.Remove(orderItemToDelete);
                 db.SaveChanges();
-
-                return Results.Ok(orderItem);
-
+                return Results.NoContent();
             });
 
-
-            // Order Item Delete
-            app.MapDelete("/order/deleteItem/", (HHPWDbContext db, DeleteOrderItemDTO orderItemToDelete) =>
+            // Create a Order Item
+            app.MapPost("/api/orderItem", (HHPWDbContext db, OrderItem newOrderItem) =>
             {
-                Order order = db.Orders
-                         .Include(order => order.Items)
-                         .ThenInclude(orderItem => orderItem.Item)
-                         .FirstOrDefault(o => o.Id == orderItemToDelete.OrderId);
-                OrderItem orderItemToRemove = order.Items.FirstOrDefault(oi => oi.Id == orderItemToDelete.OrderItemId);
-
-                if (order == null || orderItemToRemove == null)
-                {
-                    return Results.NotFound();
-                }
-
-                order.Items.Remove(orderItemToRemove);
+                db.OrderItems.Add(newOrderItem);
                 db.SaveChanges();
-                return Results.Ok(order);
+                return Results.Created($"/api/orderItem/{newOrderItem.Id}", newOrderItem);
             });
+
         }
     }
 }

@@ -8,6 +8,6 @@ namespace HHPW_BE.Models
         [Required]
         public string? Name { get; set; }
         public decimal Price { get; set; }
-        public List<OrderItem> Orders { get; set; } = new List<OrderItem>();
+       
     }
 }
