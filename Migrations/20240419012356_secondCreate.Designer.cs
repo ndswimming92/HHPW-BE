@@ -3,6 +3,7 @@ using System;
 using HHPW_BE;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HHPW_BE.Migrations
 {
     [DbContext(typeof(HHPWDbContext))]
-    partial class HHPWDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240419012356_secondCreate")]
+    partial class secondCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -101,12 +103,6 @@ namespace HHPW_BE.Migrations
                     b.Property<decimal?>("Tip")
                         .HasColumnType("numeric");
 
-                    b.Property<decimal>("Total")
-                        .HasColumnType("numeric");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
                     b.ToTable("Orders");
@@ -115,86 +111,68 @@ namespace HHPW_BE.Migrations
                         new
                         {
                             Id = 1,
-                            Date = new DateTime(2024, 4, 17, 20, 41, 47, 396, DateTimeKind.Local).AddTicks(2730),
                             Email = "alice@example.com",
                             Name = "Alice Brown",
                             OrderType = "Dine-in",
                             PaymentType = "Debit Card",
                             Phone = "111-222-3333",
                             Status = true,
-                            Tip = 3m,
-                            Total = 12m,
-                            UserId = 0
+                            Tip = 3m
                         },
                         new
                         {
                             Id = 2,
-                            Date = new DateTime(2024, 4, 14, 20, 41, 47, 398, DateTimeKind.Local).AddTicks(233),
                             Email = "bob@example.com",
                             Name = "Bob Green",
                             OrderType = "Pickup",
                             PaymentType = "Cash",
                             Phone = "444-555-6666",
                             Status = false,
-                            Tip = 12m,
-                            Total = 5m,
-                            UserId = 0
+                            Tip = 12m
                         },
                         new
                         {
                             Id = 3,
-                            Date = new DateTime(2024, 4, 4, 20, 41, 47, 398, DateTimeKind.Local).AddTicks(254),
                             Email = "charlie@example.com",
                             Name = "Charlie White",
                             OrderType = "Delivery",
                             PaymentType = "Online",
                             Phone = "777-888-9999",
                             Status = false,
-                            Tip = 1.2m,
-                            Total = 8m,
-                            UserId = 0
+                            Tip = 1.2m
                         },
                         new
                         {
                             Id = 4,
-                            Date = new DateTime(2024, 4, 13, 20, 41, 47, 398, DateTimeKind.Local).AddTicks(259),
                             Email = "david@example.com",
                             Name = "David Black",
                             OrderType = "Dine-in",
                             PaymentType = "Credit Card",
                             Phone = "123-456-7890",
                             Status = true,
-                            Tip = 4.4m,
-                            Total = 9m,
-                            UserId = 0
+                            Tip = 4.4m
                         },
                         new
                         {
                             Id = 5,
-                            Date = new DateTime(2024, 4, 9, 20, 41, 47, 398, DateTimeKind.Local).AddTicks(262),
                             Email = "eva@example.com",
                             Name = "Eva Red",
                             OrderType = "Pickup",
                             PaymentType = "Cash",
                             Phone = "987-654-3210",
                             Status = false,
-                            Tip = 12m,
-                            Total = 7m,
-                            UserId = 0
+                            Tip = 12m
                         },
                         new
                         {
                             Id = 6,
-                            Date = new DateTime(2024, 4, 10, 20, 41, 47, 398, DateTimeKind.Local).AddTicks(267),
                             Email = "frank@example.com",
                             Name = "Frank Yellow",
                             OrderType = "Delivery",
                             PaymentType = "Online",
                             Phone = "456-789-0123",
                             Status = false,
-                            Tip = 5.2m,
-                            Total = 36m,
-                            UserId = 0
+                            Tip = 5.2m
                         });
                 });
 
@@ -205,9 +183,6 @@ namespace HHPW_BE.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("Amount")
-                        .HasColumnType("integer");
 
                     b.Property<int?>("ItemId")
                         .HasColumnType("integer");
@@ -261,16 +236,26 @@ namespace HHPW_BE.Migrations
             modelBuilder.Entity("HHPW_BE.Models.OrderItem", b =>
                 {
                     b.HasOne("HHPW_BE.Models.Item", "Item")
-                        .WithMany()
+                        .WithMany("Orders")
                         .HasForeignKey("ItemId");
 
                     b.HasOne("HHPW_BE.Models.Order", "Order")
-                        .WithMany()
+                        .WithMany("Items")
                         .HasForeignKey("OrderId");
 
                     b.Navigation("Item");
 
                     b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("HHPW_BE.Models.Item", b =>
+                {
+                    b.Navigation("Orders");
+                });
+
+            modelBuilder.Entity("HHPW_BE.Models.Order", b =>
+                {
+                    b.Navigation("Items");
                 });
 #pragma warning restore 612, 618
         }

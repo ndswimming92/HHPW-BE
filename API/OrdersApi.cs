@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using HHPW_BE.Models;
 using System.Linq;
-using HHPW_BE.DTO_s;
 
 namespace HHPW_BE.API
 
@@ -11,120 +10,88 @@ namespace HHPW_BE.API
         public static void Map(WebApplication app)
         {
 
-            // Get All Orders
-            app.MapPost("/orders", (HHPWDbContext db, Order newOrder) =>
+            // Create a Order
+            app.MapPost("/api/createOrder", (HHPWDbContext db, Order newOrder) =>
             {
-                try
+                db.Orders.Add(newOrder);
+                db.SaveChanges();
+                return Results.Created($"/api/orders/{newOrder.Id}", newOrder);
+            });
+
+
+            // Get Single Order
+            app.MapGet("/api/getSingleOrder/{id}", (HHPWDbContext db, int id) =>
+            {
+                var orderID = db.Orders.FirstOrDefault(order => order.Id == id);
+
+                if (orderID == null)
                 {
-                    db.Orders.Add(newOrder);
-                    db.SaveChanges();
-                    return Results.Created($"/api/reservations/{newOrder.Id}", newOrder);
+                    return Results.NotFound("Order Not Found.");
                 }
-                catch (DbUpdateException)
-                {
-                    return Results.BadRequest("Invalid data submitted");
-                }
-            });
 
+                return Results.Ok(orderID);
+            });
 
             // Get All Orders
-            app.MapGet("/orders", (HHPWDbContext db) =>
+            app.MapGet("/api/allOrders", (HHPWDbContext db) =>
             {
-                return db.Orders
-                         .Include(order => order.Items)
-                         .ThenInclude(orderItem => orderItem.Item);
+                return db.Orders.ToList();
             });
 
 
-            // Get Orders by Id
-            app.MapGet("/orders/{id}", (HHPWDbContext db, int id) =>
+            // Get Order by Id
+            app.MapGet("/api/order/{id}", (HHPWDbContext db, int id) =>
             {
-                return db.Orders
-                         .Include(order => order.Items)
-                         .ThenInclude(orderItem => orderItem.Item)
-                         .SingleOrDefault(order => order.Id == id);
+                var order = db.Orders.FirstOrDefault(order => order.Id == id);
+
+                if (order == null)
+                {
+                    return Results.NotFound("Order was not found.");
+                }
+
+                return Results.Ok(order);
             });
 
 
-            // Update Orders
-            app.MapPut("/orders/{id}", (HHPWDbContext db, int id, Order updatedOrder) =>
+            // Update Order
+            app.MapPut("/api/orders/{id}", (HHPWDbContext db, int id, Order order) =>
             {
-                Order orderToUpdate = db.Orders.FirstOrDefault(o => o.Id == id);
+                Order orderToUpdate = db.Orders.SingleOrDefault(order => order.Id == id);
+
                 if (orderToUpdate == null)
                 {
                     return Results.NotFound();
                 }
 
-                if (updatedOrder.Name != null)
-                {
-                    orderToUpdate.Name = updatedOrder.Name;
-                }
-
-                if (updatedOrder.Status != orderToUpdate.Status)
-                {
-                    orderToUpdate.Status = updatedOrder.Status;
-                }
-
-                if (updatedOrder.Phone != null)
-                {
-                    orderToUpdate.Phone = updatedOrder.Phone;
-                }
-
-                if (updatedOrder.Email != null)
-                {
-                    orderToUpdate.Email = updatedOrder.Email;
-                }
-
-                if (updatedOrder.OrderType != null)
-                {
-                    orderToUpdate.OrderType = updatedOrder.OrderType;
-                }
-
-                if (updatedOrder.PaymentType != null)
-                {
-                    orderToUpdate.PaymentType = updatedOrder.PaymentType;
-                }
-
-                if (updatedOrder.Tip != null)
-                {
-                    orderToUpdate.Tip = updatedOrder.Tip;
-                }
+                orderToUpdate.Name = order.Name;
+                orderToUpdate.Status = order.Status;
+                orderToUpdate.Phone = order.Phone;
+                orderToUpdate.Email = order.Email;
+                orderToUpdate.OrderType = order.OrderType;
+                orderToUpdate.Total = order.Total;
+                orderToUpdate.Tip = order.Tip;
+                orderToUpdate.Date = order.Date;
 
                 db.SaveChanges();
                 return Results.NoContent();
             });
 
 
-            // Delete Orders
-            app.MapDelete("/orders/{id}", (HHPWDbContext db, int id) =>
+            // Delete Order
+            app.MapDelete("api/deleteOrder/{id}", (HHPWDbContext db, int id) =>
             {
-                Order orderToDelete = db.Orders.FirstOrDefault(o => o.Id == id);
+                Order orderToDelete = db.Orders.FirstOrDefault(order => order.Id == id);
                 if (orderToDelete == null)
                 {
                     return Results.NotFound();
                 }
                 db.Orders.Remove(orderToDelete);
+                db.SaveChanges();
                 return Results.Ok(db.Orders);
             });
 
 
-            app.MapGet("/orders/{id}/items", (HHPWDbContext db, int id) => {
-                var orderToGetItems = db.Orders
-                         .Where(o => o.Id == id)
-                         .Include(order => order.Items)
-                         .ThenInclude(orderItem => orderItem.Item)
-                         .Select(order => new
-                         {
-                             Items = order.Items.Select(oi => new ItemDTO
-                             {
-                                 Id = oi.Item.Id,
-                                 OrderItemId = oi.Id,
-                                 Name = oi.Item.Name,
-                                 Price = oi.Item.Price,
-                             })
-                         });
-                return Results.Ok(orderToGetItems);
-            });
+           
 
         }
     }

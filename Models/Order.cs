@@ -14,19 +14,8 @@ namespace HHPW_BE.Models
         public string? PaymentType { get; set; }
         public decimal? Tip { get; set; }
         public DateTime? Date { get; set; }
-        public decimal? Total {
-            get
-            {
-                return Subtotal + Tip;
-            }
-        }
-        public List<OrderItem>? Items { get; set; }
-        public decimal? Subtotal
-        {
-            get
-            {
-                return Items.Sum(item => item.Price);
-            }
-        }
+        public decimal Total { get; set; }
+
+        public int UserId { get; set;}
     }
-};
+}

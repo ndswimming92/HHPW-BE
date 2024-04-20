@@ -7,25 +7,24 @@ namespace HHPW_BE.API
         public static void Map(WebApplication app)
         {
             // Get All Items
-            app.MapGet("/items", (HHPWDbContext db) =>
+            app.MapGet("/api/getAllItems", (HHPWDbContext db) =>
             {
                 return db.Items.ToList();
             });
 
-            app.MapDelete("/items/delete/{id}", (HHPWDbContext db, int id) =>
+            // Get Single Item
+            app.MapGet("/api/getSingleItem/{id}", (HHPWDbContext db, int id) =>
             {
+                var itemID = db.Items.FirstOrDefault(c => c.Id == id);
 
-                // Delete Items by Id
-                var itemToDelete = db.Items.FirstOrDefault(i => i.Id == id);
-                if (itemToDelete == null)
+                if (itemID == null)
                 {
-                    return Results.NotFound();
+                    return Results.NotFound("Item Not Found.");
                 }
-                db.Items.Remove(itemToDelete);
-                db.SaveChanges();
-                return Results.Ok(db.Items);
 
+                return Results.Ok(itemID);
             });
+
         }
     }
 
